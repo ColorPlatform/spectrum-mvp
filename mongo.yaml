@@ -1,0 +1,76 @@
+#---
+#kind: PersistentVolume
+#apiVersion: v1
+#metadata:
+#  name: mongo-persistent-volume
+#  labels:
+#    type: local
+#spec:
+#  storageClassName: manual
+#  capacity:
+#    storage: 10Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  hostPath:
+#    path: "/home/student/projects/__aaa/data"
+#
+#---
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: mongo-persistent-claim
+#spec:
+#  storageClassName: manual
+#  accessModes:
+#    - ReadWriteOnce
+#  resources:
+#    requests:
+#      storage: 3Gi
+#---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  labels:
+    name: mongo
+  name: mongo-controller
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: mongo
+    spec:
+      containers:
+      - image: mongo
+        command:
+          - mongod
+          - "--replSet"
+          - single
+          - "--bind_ip_all"
+        name: mongo
+        ports:
+        - name: mongo
+          containerPort: 27017
+          hostPort: 27017
+#        volumeMounts:
+#            - name: mongo-persistent-storage
+#              mountPath: /data/db
+#      volumes:
+#        - name: mongo-persistent-storage
+#          persistentVolumeClaim:
+#            claimName: mongo-persistent-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mongo
+  name: mongo
+spec:
+  type: NodePort
+  ports:
+    - port: 27017
+      nodePort: 30017
+      targetPort: 27017
+  selector:
+    name: mongo

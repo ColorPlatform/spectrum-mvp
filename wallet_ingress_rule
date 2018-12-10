@@ -1,0 +1,14 @@
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wallet
+spec:
+  rules:
+  - host: wall.e
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: wallet
+          servicePort: 80

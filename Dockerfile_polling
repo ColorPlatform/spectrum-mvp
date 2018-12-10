@@ -1,0 +1,25 @@
+FROM python:3.6.5
+
+# install netcat
+RUN apt-get update \
+  && apt-get -y install netcat \
+  && apt-get clean
+
+# set working directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# add requirements
+COPY ./unfiltered_requirements.txt /usr/src/app/unfiltered_requirements.txt
+
+# install requirements
+RUN pip install -r unfiltered_requirements.txt
+
+
+# add app
+COPY polling.py /usr/src/app
+COPY hfc /usr/src/app/hfc
+COPY test /usr/src/app/test
+
+# run server
+CMD ["python", "polling.py"]
